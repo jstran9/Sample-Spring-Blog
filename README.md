@@ -1,4 +1,3 @@
 # Sample-Spring-Blog
 
-This is a work in progress, I need to modify some parts of the code, specifically the CustomAuthenticationProvider.
-I also need to add in AngularJS to perform client side validation for both the registration and login forms.
+This is a work in progress, I need to modify some parts of the code, specifically the CustomAuthenticationProvider class. I will also be modifying the css files and javascript files as necessaray.

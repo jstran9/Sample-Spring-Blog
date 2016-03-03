@@ -1,5 +1,8 @@
 package tran.example.model.DAO;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import javax.sql.DataSource;
 
 import org.springframework.dao.DataAccessException;
@@ -26,6 +29,8 @@ public class UserDAO {
 	
 	private final static String GET_DETAILED_USER_INFO = "SELECT * FROM Users WHERE user_Name = ?";
 	private final static String GET_USER_ROLE = "SELECT role FROM User_Roles WHERE username = ?";
+	
+	private final static String CHECK_FOR_USERNAME = "SELECT user_Name FROM Users where user_Name = ?";
 	
 	private DataSource dataSource;
 	private JdbcTemplate jdbcTemplateObject;
@@ -58,7 +63,6 @@ public class UserDAO {
 	public int createUserRole(String name, String userRole) throws DataAccessException {
 	    return jdbcTemplateObject.update(INSERT_INTO_USER_ROLES, name, userRole);
 	}
-	
 	
 	// these delete methods are not used the moment but not implemented. they will have to be tested when the time comes.
 	public String delete(String name) {
@@ -100,7 +104,15 @@ public class UserDAO {
 		catch(DataAccessException e) {
 			return new Role();
 		}
-		
 	}
 	
+	// check if a user name exists.
+	public int checkForUserName(String userName) {
+		try {
+			return jdbcTemplateObject.queryForObject(CHECK_FOR_USERNAME, new Object[]{userName}, new UserNameMapper());
+		}
+		catch(DataAccessException e) {
+			return 1; // user name couldn't be retrieved, does not exist.
+		}
+	}
 }

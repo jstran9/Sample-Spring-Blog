@@ -3,11 +3,14 @@ package tran.example.controller;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import tran.example.model.User;
 import tran.example.model.DAO.UserDAO;
@@ -47,6 +50,33 @@ public class RegisterFormController {
 			model.addAttribute("error", "An error has occured, please try again");
 			return "register";
 		}
+	}
+	
+	// url for the ajax request from the registration form.
+	@ResponseBody
+	@RequestMapping(value ="/userNameCheckDB", method=RequestMethod.GET)
+	public ResponseEntity<String> clientSideCheck(@RequestParam(value = "userName", required = true) String userName) {
+		ResponseEntity<String> returnCode = null;
+		ApplicationContext appContext =  new ClassPathXmlApplicationContext("spring/database/Datasource.xml");
+		UserDAO createUser = (UserDAO)appContext.getBean("userDS");
+		Integer createUserReturnCode = createUser.checkForUserName(userName);
+		((ConfigurableApplicationContext)appContext).close();
+		if(createUserReturnCode != null) {
+			if(createUserReturnCode == 1)  { // user name does not exist
+				returnCode = new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+			}
+			else if (createUserReturnCode == -1) {
+				// user name exists or there was some kind of validation error.
+				// a success code indicates that this username is taken.
+				returnCode = new ResponseEntity<String>(HttpStatus.ACCEPTED);
+			}
+			else if (createUserReturnCode == -2) {
+				// SQL syntactical error, could not check if the user name exists.
+				// a success code indicates that this username is taken.
+				returnCode = new ResponseEntity<String>(HttpStatus.ACCEPTED);
+			}
+		}
+		return returnCode;
 	}
 	
 }

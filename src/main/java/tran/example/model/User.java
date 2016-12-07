@@ -106,4 +106,13 @@ public class User {
 				
 		return true;
 	}
+	
+	public boolean checkUserName(String entered_user_name) {
+		String userNameRegex = "^[a-z0-9_-]{6,35}$";
+		if(!entered_user_name.matches(userNameRegex)) {
+			message = "The user name must be 6 to 35 characters.\nOnly lower case letters, numbers, an underscore , or hyphen are allowed!";
+			return false;
+		}
+		return true;
+	}
 }

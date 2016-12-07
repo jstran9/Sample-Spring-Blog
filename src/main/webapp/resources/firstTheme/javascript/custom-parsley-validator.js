@@ -24,29 +24,24 @@ window.Parsley.addValidator('passwordcheck',
 	}
 );
 
-// for registration page, to validate the username by querying the database?
-function checkForUserName() {
-	var usernameValue = document.getElementById('userName').value; 
-	
-	$.ajax( 
-	{ 
-		type: "GET",
-		url: "/userNameCheckDB",
-		data: 'userName=' + usernameValue,
-		success: function(msg)
-		{	
-			//document.getElementById("userNameError").show();
-			$("#userNameError").show();
-			document.getElementById("userNameError").innerHTML=usernameValue + " is taken";
-			document.getElementById("register").disabled = true;
-		},
-		error: function() {
-			document.getElementById("userNameError").innerHTML='';
-			document.getElementById("register").disabled = false;
-			$("#userNameError").hide();
-			//document.getElementById("userNameError").hide();
-		}
-
-	});	
-
-}
+$(document).ready(function() {
+	$("#userName").focusout(function() {
+		var entered_user_name = $("#userName").val();
+		var url_host = "/SpringBlogApp" + "/userNameCheckDB";
+		$.ajax({
+			url: url_host,
+			type : "GET",
+			data: 'userName=' + entered_user_name,
+			success: function(data) {
+				$("#infoField").hide();
+				$("#register").attr('disabled', false);
+			},
+			error: function(jqXHR) {
+				$("#infoField").show();
+				$("#infoField").html(jqXHR.responseText);
+				$("#register").attr('disabled', true);
+			}
+		});
+		return false;
+	});
+});

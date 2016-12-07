@@ -93,3 +93,14 @@
   position: absolute;
   right: 20px;
 }
+
+
+
+/*
+ * Hiding error field by default.
+ */
+.hidden-div-field {
+	display: none;
+	text-align: center;
+	color: red;
+} 

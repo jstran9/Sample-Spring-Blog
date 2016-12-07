@@ -54,7 +54,7 @@ public class RegisterFormController {
 	
 	// url for the ajax request from the registration form.
 	@ResponseBody
-	@RequestMapping(value ="/userNameCheckDB", method=RequestMethod.GET)
+	@RequestMapping(value ="/userNameCheckDB", method=RequestMethod.GET, name = "yoyo")
 	public ResponseEntity<String> clientSideCheck(@RequestParam(value = "userName", required = true) String userName) {
 		ResponseEntity<String> returnCode = null;
 		ApplicationContext appContext =  new ClassPathXmlApplicationContext("spring/database/Datasource.xml");
@@ -63,17 +63,22 @@ public class RegisterFormController {
 		((ConfigurableApplicationContext)appContext).close();
 		if(createUserReturnCode != null) {
 			if(createUserReturnCode == 1)  { // user name does not exist
-				returnCode = new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+				// now check to see if it is in the proper format.
+				User user = new User();
+				returnCode = user.checkUserName(userName) == true ? new ResponseEntity<String>(HttpStatus.OK) 
+						: new ResponseEntity<String>(user.getMessage(), HttpStatus.BAD_REQUEST); 
 			}
 			else if (createUserReturnCode == -1) {
 				// user name exists or there was some kind of validation error.
 				// a success code indicates that this username is taken.
-				returnCode = new ResponseEntity<String>(HttpStatus.ACCEPTED);
+				String error_message = "user name already exists";
+				returnCode = new ResponseEntity<String>(error_message, HttpStatus.CONFLICT);
 			}
 			else if (createUserReturnCode == -2) {
 				// SQL syntactical error, could not check if the user name exists.
 				// a success code indicates that this username is taken.
-				returnCode = new ResponseEntity<String>(HttpStatus.ACCEPTED);
+				String server_error = "server error";
+				returnCode = new ResponseEntity<String>(server_error, HttpStatus.INTERNAL_SERVER_ERROR);
 			}
 		}
 		return returnCode;
